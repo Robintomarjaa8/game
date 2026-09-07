@@ -47,7 +47,6 @@ function renderBoard() {
   elements.letterList.innerHTML = state.letters.map(letter => `<div class="letter-card" data-letter="${letter}" role="button" tabindex="0" aria-label="Letter ${letter}">${letter}</div>`).join('');
   elements.wordList.innerHTML = state.words.map(({ word, letter }) => `<div class="word-card" data-word="${word}" data-letter="${letter}" role="button" tabindex="0">${word}</div>`).join('');
   elements.letterList.querySelectorAll('.letter-card').forEach(card => { card.addEventListener('pointerdown', startDrag); card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') startDrag(event); }); });
-  elements.wordList.querySelectorAll('.word-card').forEach(card => card.addEventListener('pointerup', finishDrag));
   window.requestAnimationFrame(drawMatches);
 }
 
@@ -58,13 +57,17 @@ function getCardPoint(card, side) { const cardRect = card.getBoundingClientRect(
 function startDrag(event) {
   event.preventDefault(); if (state.completed) return;
   const source = event.currentTarget; const letter = source.dataset.letter; state.dragging = { letter, source, pointerId: event.pointerId };
-  source.classList.add('active'); source.setPointerCapture?.(event.pointerId); document.addEventListener('pointermove', moveDrag); document.addEventListener('pointerup', finishDrag, { once: true });
+  source.classList.add('active');
+  if (event.pointerId !== undefined) source.setPointerCapture?.(event.pointerId);
+  document.addEventListener('pointermove', moveDrag);
+  document.addEventListener('pointerup', finishDrag, { once: true });
+  document.addEventListener('pointercancel', finishDrag, { once: true });
   updatePreview(event);
 }
 function moveDrag(event) { if (state.dragging) updatePreview(event); }
 function updatePreview(event) { const start = getCardPoint(state.dragging.source, 'right'); const end = getPoint(event); const curve = Math.max(45, (end.x - start.x) * .45); elements.previewLine.setAttribute('d', `M ${start.x} ${start.y} C ${start.x + curve} ${start.y}, ${end.x - curve} ${end.y}, ${end.x} ${end.y}`); }
 function finishDrag(event) {
-  if (!state.dragging) return; const drag = state.dragging; state.dragging = null; document.removeEventListener('pointermove', moveDrag); drag.source.classList.remove('active'); elements.previewLine.setAttribute('d', '');
+  if (!state.dragging) return; const drag = state.dragging; state.dragging = null; document.removeEventListener('pointermove', moveDrag); document.removeEventListener('pointercancel', finishDrag); drag.source.releasePointerCapture?.(drag.pointerId); drag.source.classList.remove('active'); elements.previewLine.setAttribute('d', '');
   const target = [...document.elementsFromPoint(event.clientX, event.clientY)].map(element => element.closest?.('.word-card')).find(Boolean); if (!target || target.classList.contains('matched')) return showFeedback('Pick an available word.', false);
   checkMatch(drag.letter, target);
 }
