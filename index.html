@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alphabet Word Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true"><span>Ａ</span><span>あ</span></div>
+        <div>
+          <p class="eyebrow">Little learners studio</p>
+          <h1>Alphabet <span>Word Match</span></h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-button" id="pauseButton" type="button" aria-label="Pause game" title="Pause game"><span class="pause-icon">Ⅱ</span><span class="button-label">Pause</span></button>
+        <button class="restart-button" id="restartButton" type="button"><span aria-hidden="true">↻</span> Restart</button>
+      </div>
+    </header>
+
+    <section class="stats-bar" aria-label="Game statistics">
+      <div class="stat-item level-stat"><span class="stat-icon">★</span><div><small>LEVEL</small><strong id="levelValue">01</strong></div></div>
+      <div class="stat-item"><span class="stat-icon score-icon">✦</span><div><small>SCORE</small><strong id="scoreValue">000</strong></div></div>
+      <div class="stat-item"><span class="stat-icon timer-icon">◷</span><div><small>TIME</small><strong id="timerValue">00:00</strong></div></div>
+      <div class="progress-stat"><div class="progress-label"><small>YOUR PROGRESS</small><strong id="progressText">0 / 9 matched</strong></div><div class="progress-track"><span id="progressBar"></span></div></div>
+      <div class="combo-stat" id="comboStat"><span class="combo-flame">♨</span><div><small>COMBO</small><strong id="comboValue">x0</strong></div></div>
+    </section>
+
+    <section class="game-card" id="gameCard">
+      <div class="game-intro">
+        <div>
+          <p class="section-kicker"><span class="dot"></span> Find every beginning sound</p>
+          <h2>Connect the letters<br><em>to their words!</em></h2>
+        </div>
+        <div class="intro-tools">
+          <button class="hint-button" id="hintButton" type="button"><span aria-hidden="true">✧</span> Hint <b id="hintsLeft">3</b></button>
+          <p class="instruction"><span class="mouse-icon">⌁</span> Drag a letter to a matching word</p>
+        </div>
+      </div>
+
+      <div class="board-wrap" id="boardWrap">
+        <svg class="connections" id="connections" aria-hidden="true" preserveAspectRatio="none"><defs><filter id="lineShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-opacity=".14"/></filter></defs><g id="lineLayer"></g><path id="previewLine" class="preview-line" d="" /></svg>
+        <div class="board-column letters-column"><div class="column-heading"><span class="heading-number">01</span><span>Alphabet</span></div><div class="letter-list" id="letterList"></div></div>
+        <div class="board-column words-column"><div class="column-heading"><span class="heading-number">02</span><span>Matching words</span><span class="word-count" id="wordCount">9 words</span></div><div class="word-list" id="wordList"></div></div>
+      </div>
+      <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+    </section>
+
+    <footer class="footer-note"><span class="sparkle">✦</span> Every word has a home. Can you find it? <span class="sparkle">✦</span></footer>
+  </main>
+
+  <div class="pause-overlay" id="pauseOverlay" hidden><div class="pause-modal"><span class="modal-star">✦</span><h2>Time to pause?</h2><p>Your game is waiting right here.</p><button class="primary-button" id="resumeButton" type="button">Keep playing</button></div></div>
+  <div class="completion-overlay" id="completionOverlay" hidden><div class="completion-modal"><div class="confetti-emoji">🎉</div><p class="section-kicker">Wonderful work!</p><h2>AMAZING!</h2><p class="completion-copy">You matched every word<br>to its alphabet home.</p><div class="result-grid"><div><small>SCORE</small><strong id="finalScore">850</strong></div><div><small>MATCHES</small><strong id="finalMatches">9 / 9</strong></div><div><small>TIME</small><strong id="finalTime">00:00</strong></div></div><div class="modal-actions"><button class="secondary-button" id="playAgainButton" type="button">Play again</button><button class="primary-button" id="nextLevelButton" type="button">Next level <span>→</span></button></div></div></div>
+  <script src="script.js"></script>
+</body>
+</html>
