@@ -64,7 +64,7 @@ function startDrag(event) {
   document.addEventListener('pointercancel', finishDrag, { once: true });
   updatePreview(event);
 }
-function moveDrag(event) { if (state.dragging) updatePreview(event); }
+function moveDrag(event) { if (state.dragging) { event.preventDefault(); updatePreview(event); } }
 function updatePreview(event) { const start = getCardPoint(state.dragging.source, 'right'); const end = getPoint(event); const curve = Math.max(45, (end.x - start.x) * .45); elements.previewLine.setAttribute('d', `M ${start.x} ${start.y} C ${start.x + curve} ${start.y}, ${end.x - curve} ${end.y}, ${end.x} ${end.y}`); }
 function finishDrag(event) {
   if (!state.dragging) return; const drag = state.dragging; state.dragging = null; document.removeEventListener('pointermove', moveDrag); document.removeEventListener('pointercancel', finishDrag); drag.source.releasePointerCapture?.(drag.pointerId); drag.source.classList.remove('active'); elements.previewLine.setAttribute('d', '');

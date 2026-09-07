@@ -1,4 +1,4 @@
-.board-wrap { position: relative; display: grid; grid-template-columns: 30% 70%; min-height: 410px; padding: 0 14px 5px; touch-action: none; }
+.board-wrap { position: relative; display: grid; grid-template-columns: 30% 70%; min-height: 410px; padding: 0 14px 5px; touch-action: pan-y; }
 :root {
   --ink: #25334a;
   --muted: #8792a5;
