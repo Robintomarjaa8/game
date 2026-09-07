@@ -56,18 +56,31 @@ function getPoint(event) {
 function getCardPoint(card, side) { const cardRect = card.getBoundingClientRect(); const svgRect = elements.connections.getBoundingClientRect(); return { x: (side === 'right' ? cardRect.right : cardRect.left) - svgRect.left, y: cardRect.top + cardRect.height / 2 - svgRect.top }; }
 function startDrag(event) {
   event.preventDefault(); if (state.completed) return;
-  const source = event.currentTarget; const letter = source.dataset.letter; state.dragging = { letter, source, pointerId: event.pointerId };
+  const source = event.currentTarget; const letter = source.dataset.letter; state.dragging = { letter, source, pointerId: event.pointerId, lastPointer: { x: event.clientX, y: event.clientY }, autoScrollFrame: 0 };
   source.classList.add('active');
   if (event.pointerId !== undefined) source.setPointerCapture?.(event.pointerId);
   document.addEventListener('pointermove', moveDrag);
   document.addEventListener('pointerup', finishDrag, { once: true });
   document.addEventListener('pointercancel', finishDrag, { once: true });
+  state.dragging.autoScrollFrame = requestAnimationFrame(autoScrollDuringDrag);
   updatePreview(event);
 }
-function moveDrag(event) { if (state.dragging) { event.preventDefault(); updatePreview(event); } }
+function moveDrag(event) { if (state.dragging) { event.preventDefault(); state.dragging.lastPointer = { x: event.clientX, y: event.clientY }; updatePreview(event); } }
+function autoScrollDuringDrag() {
+  if (!state.dragging) return;
+  const edge = 92; const maxSpeed = 14; const y = state.dragging.lastPointer.y;
+  let scrollDelta = 0;
+  if (y < edge) scrollDelta = -Math.ceil((edge - y) / edge * maxSpeed);
+  if (y > window.innerHeight - edge) scrollDelta = Math.ceil((y - (window.innerHeight - edge)) / edge * maxSpeed);
+  if (scrollDelta) {
+    window.scrollBy(0, scrollDelta);
+    updatePreview({ clientX: state.dragging.lastPointer.x, clientY: state.dragging.lastPointer.y });
+  }
+  state.dragging.autoScrollFrame = requestAnimationFrame(autoScrollDuringDrag);
+}
 function updatePreview(event) { const start = getCardPoint(state.dragging.source, 'right'); const end = getPoint(event); const curve = Math.max(45, (end.x - start.x) * .45); elements.previewLine.setAttribute('d', `M ${start.x} ${start.y} C ${start.x + curve} ${start.y}, ${end.x - curve} ${end.y}, ${end.x} ${end.y}`); }
 function finishDrag(event) {
-  if (!state.dragging) return; const drag = state.dragging; state.dragging = null; document.removeEventListener('pointermove', moveDrag); document.removeEventListener('pointercancel', finishDrag); drag.source.releasePointerCapture?.(drag.pointerId); drag.source.classList.remove('active'); elements.previewLine.setAttribute('d', '');
+  if (!state.dragging) return; const drag = state.dragging; state.dragging = null; cancelAnimationFrame(drag.autoScrollFrame); document.removeEventListener('pointermove', moveDrag); document.removeEventListener('pointercancel', finishDrag); drag.source.releasePointerCapture?.(drag.pointerId); drag.source.classList.remove('active'); elements.previewLine.setAttribute('d', '');
   const target = [...document.elementsFromPoint(event.clientX, event.clientY)].map(element => element.closest?.('.word-card')).find(Boolean); if (!target || target.classList.contains('matched')) return showFeedback('Pick an available word.', false);
   checkMatch(drag.letter, target);
 }
